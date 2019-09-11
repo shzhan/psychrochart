@@ -1,8 +1,8 @@
 {
 	"figure": {
 		"figsize": [16, 9],
-		"title": "Psychrometric Chart (sea level)",
-		"x_label": "DRY-BULB TEMPERATURE, $°C$",
+		"title": "Psychrometric Chart (sea level ASHRAE)",
+		"x_label": "DRY-BULB TEMPERATURE $\\degree C$",
 		"y_label": "HUMIDITY RATIO $w, g_w / kg_{da}$",
 		"x_axis": {"color": [0.0, 0.0, 0.0], "linewidth": 1.5, "linestyle": "-"},
 		"x_axis_labels": {"color": [0.0, 0.0, 0.0], "fontsize": 8},
@@ -14,8 +14,8 @@
 		"position": [0.025, 0.075, 0.925, 0.875]
 	},
 	"limits": {
-		"range_temp_c": [0, 50],
-		"range_humidity_g_kg": [0, 30],
+		"range_temp": [0, 50],
+		"range_humidity": [0, 0.03],
 		"altitude_m": 0,
 		"step_temp": 1.0
 	},
@@ -34,7 +34,7 @@
 		
 		"with_constant_v": true,
 		"constant_v_step": 0.01,
-		"range_vol_m3_kg": [0.78, 0.96],
+		"range_vol": [0.78, 0.96],
 
 		"with_constant_h": true,
 		"constant_h_step": 10,

@@ -14,8 +14,8 @@
 		"position": [0.025, 0.075, 0.925, 0.875]
 	},
 	"limits": {
-		"range_temp_c": [15, 35],
-		"range_humidity_g_kg": [0, 25],
+		"range_temp": [15, 35],
+		"range_humidity": [0, 0.025],
 		"altitude_m": 550,
 		"step_temp": 0.25
 	},
@@ -35,7 +35,7 @@
 
 		"with_constant_v": true,
 		"constant_v_step": 0.025,
-		"range_vol_m3_kg": [0.875, 1.0],
+		"range_vol": [0.875, 1.0],
 		"constant_v_labels": [0.9],
 
 		"with_constant_h": true,

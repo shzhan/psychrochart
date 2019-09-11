@@ -28,6 +28,13 @@ from psychrochart.equations import (
 from psychrochart.util import (
     load_config, load_zones, mod_color, f_range, solve_curves_with_iteration)
 
+import psychrolib
+
+
+PRESSURE_STD_ATM_KPA = 101.325;
+
+PRESSURE_STD_ATM_PSIA = 14.696;
+
 PSYCHRO_CURVES_KEYS = [
     'constant_dry_temp_data', 'constant_humidity_data',
     'constant_h_data', 'constant_v_data', 'constant_rh_data',
@@ -275,7 +282,7 @@ def _gen_list_curves_range_temps(
         func_curve: Callable,
         dbt_min: float, dbt_max: float, increment: float,
         curves_values: list,
-        p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> Tuple[List[float],
+        p_atm_kpa: float) -> Tuple[List[float],
                                                         List[List[float]]]:
     """Generate a curve from a range of temperatures."""
     temps = f_range(dbt_min, dbt_max + increment, increment)
@@ -286,14 +293,14 @@ def _gen_list_curves_range_temps(
 def curve_constant_humidity_ratio(
         dry_temps: Iterable[float],
         rh_percentage: Union[float, Iterable[float]]=100.,
-        p_atm_kpa: float=PRESSURE_STD_ATM_KPA, mode_sat=1) -> List[float]:
+        p_atm_kpa: float = None, mode_sat=1) -> List[float]:
     """Generate a curve (numpy array) of constant humidity ratio."""
     if isinstance(rh_percentage, Iterable):
-        return [1000 * humidity_ratio(
+        return [humidity_ratio(
             saturation_pressure_water_vapor(t, mode=mode_sat)
             * rh / 100., p_atm_kpa)
                 for t, rh in zip(dry_temps, rh_percentage)]
-    return [1000 * humidity_ratio(
+    return [humidity_ratio(
         saturation_pressure_water_vapor(t, mode=mode_sat)
         * rh_percentage / 100., p_atm_kpa)
             for t in dry_temps]
@@ -302,7 +309,7 @@ def curve_constant_humidity_ratio(
 def _make_zone_dbt_rh(
         t_min: float, t_max: float, increment: float,
         rh_min: float, rh_max: float,
-        p_atm_kpa: float=PRESSURE_STD_ATM_KPA,
+        p_atm_kpa: float,
         style: dict=None,
         label: str=None,
         logger=None) -> PsychroCurve:
@@ -327,7 +334,7 @@ def _valid_zone_type(zone_type: str) -> bool:
 
 def _make_zone(
         zone_conf: Dict, increment: float,
-        p_atm_kpa: float=PRESSURE_STD_ATM_KPA,
+        p_atm_kpa: float,
         logger=None) -> PsychroCurve:
     """Generate points for zone between constant dry bulb temps and RH."""
     if zone_conf['zone_type'] == 'dbt-rh':
@@ -353,8 +360,11 @@ class PsychroChart:
                  styles: Union[dict, str]=None,
                  zones_file: Union[dict, str]=None,
                  logger: Any=None,
-                 verbose: bool=False) -> None:
+                 verbose: bool=False,
+                 imperial: bool = False) -> None:
         """Create the PsychroChart object."""
+        if imperial: psychrolib.SetUnitSystem(psychrolib.IP); self.p_atm = PRESSURE_STD_ATM_KPA  #kpa
+        elif not imperial: psychrolib.SetUnitSystem(psychrolib.SI); self.p_atm = PRESSURE_STD_ATM_PSIA # psia
         self._logger = logger
         self._verbose = verbose
         self.d_config = {}  # type: dict
@@ -364,7 +374,6 @@ class PsychroChart:
         self.temp_step = 1.
         self.altitude_m = -1
         self.chart_params = {}  # type: dict
-        self.p_atm_kpa = PRESSURE_STD_ATM_KPA
         self.constant_dry_temp_data = None  # type: Optional[PsychroCurves]
         self.constant_humidity_data = None  # type: Optional[PsychroCurves]
         self.constant_rh_data = None  # type: Optional[PsychroCurves]
@@ -380,7 +389,7 @@ class PsychroChart:
         self._legend = None  # type: Legend
         self._handlers_annotations = []  # type: List
 
-        self._make_chart_data(styles, zones_file)
+        self._make_chart_data(styles, zones_file, imperial)
 
     def __repr__(self) -> str:
         """Return a string representation of the PsychroChart object."""
@@ -397,16 +406,19 @@ class PsychroChart:
 
     def _make_chart_data(self,
                          styles: Union[dict, str]=None,
-                         zones_file: Union[dict, str]=None) -> None:
+                         zones_file: Union[dict, str]=None,
+                         imperial = False) -> None:
         """Generate the data to plot the psychrometric chart."""
         # Get styling
-        config = load_config(styles)
+        config = load_config(styles, imperial)
+        print(config)
+        # print(config)
         self.d_config = config
         self.temp_step = config['limits']['step_temp']
 
         self.figure_params = config['figure']
-        self.dbt_min, self.dbt_max = config['limits']['range_temp_c']
-        self.w_min, self.w_max = config['limits']['range_humidity_g_kg']
+        self.dbt_min, self.dbt_max = config['limits']['range_temp']
+        self.w_min, self.w_max = config['limits']['range_humidity']
         self.chart_params = config['chart_params']
 
         # Base pressure
@@ -421,7 +433,7 @@ class PsychroChart:
             step = self.chart_params["constant_temp_step"]
             style = config['constant_dry_temp']
             temps_vl = f_range(self.dbt_min, self.dbt_max, step)
-            heights = [1000 * humidity_ratio(
+            heights = [humidity_ratio(
                 saturation_pressure_water_vapor(t),
                 p_atm_kpa=self.p_atm_kpa) for t in temps_vl]
 
@@ -438,7 +450,7 @@ class PsychroChart:
             style = config['constant_humidity']
             ws_hl = f_range(self.w_min + step, self.w_max + step / 10, step)
             dew_points = solve_curves_with_iteration(
-                'DEW POINT', [x / 1000 for x in ws_hl],
+                'DEW POINT', [x for x in ws_hl],
                 lambda x: dew_point_temperature(
                         water_vapor_pressure(
                             x, p_atm_kpa=self.p_atm_kpa)),
@@ -484,20 +496,20 @@ class PsychroChart:
             style = config["constant_h"]
             temps_max_constant_h = [
                 dry_temperature_for_enthalpy_of_moist_air(
-                    self.w_min / 1000, h)
+                    self.w_min, h)
                 for h in enthalpy_values]
 
             sat_points = solve_curves_with_iteration(
                 'ENTHALPHY', enthalpy_values,
                 lambda x: dry_temperature_for_enthalpy_of_moist_air(
-                    self.w_min / 1000 + 0.1, x),
+                    self.w_min+ 0.1, x),
                 lambda x: enthalpy_moist_air(
                     x, saturation_pressure_water_vapor(x),
                     p_atm_kpa=self.p_atm_kpa))
 
             self.constant_h_data = PsychroCurves(
                 [PsychroCurve(
-                    [t_sat, t_max], [1000 * humidity_ratio(
+                    [t_sat, t_max], [humidity_ratio(
                         saturation_pressure_water_vapor(t_sat),
                         self.p_atm_kpa), self.w_min], style,
                     type_curve='constant_h_data',
@@ -511,7 +523,7 @@ class PsychroChart:
         # Constant specific volume lines:
         if self.chart_params["with_constant_v"]:
             step = self.chart_params["constant_v_step"]
-            start, end = self.chart_params["range_vol_m3_kg"]
+            start, end = self.chart_params["range_vol"]
             vol_values = f_range(start, end, step)
             vol_label_values = self.chart_params.get("constant_v_labels", [])
             label_loc = self.chart_params.get("constant_v_labels_loc", 1.)
@@ -530,7 +542,7 @@ class PsychroChart:
 
             self.constant_v_data = PsychroCurves(
                 [PsychroCurve(
-                    [t_sat, t_max], [1000 * humidity_ratio(
+                    [t_sat, t_max], [humidity_ratio(
                         saturation_pressure_water_vapor(t_sat),
                         self.p_atm_kpa), 0],
                     style, type_curve='constant_v_data',
@@ -558,8 +570,8 @@ class PsychroChart:
             self.constant_wbt_data = PsychroCurves(
                 [PsychroCurve(
                     [wbt, self.dbt_max],
-                    [1000 * w_max,
-                     1000 * humidity_ratio(
+                    [w_max,
+                     humidity_ratio(
                          saturation_pressure_water_vapor(self.dbt_max)
                          * relative_humidity_from_temps(
                              self.dbt_max, wbt, p_atm_kpa=self.p_atm_kpa),
@@ -792,7 +804,7 @@ class PsychroChart:
             reverse: bool=False,
             **label_params) -> None:
         """Append a vertical line from w_min to w_sat."""
-        w_max = 1000 * humidity_ratio(
+        w_max = humidity_ratio(
             saturation_pressure_water_vapor(temp), self.p_atm_kpa)
 
         style_curve = style or self.d_config.get("constant_dry_temp")

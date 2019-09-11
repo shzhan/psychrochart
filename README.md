@@ -120,8 +120,8 @@ custom_style = {
         "partial_axis": False
     },
     "limits": {
-        "range_temp_c": [15, 30],
-        "range_humidity_g_kg": [0, 25],
+        "range_temp": [15, 30],
+        "range_humidity": [0, 25],
         "altitude_m": 900,
         "step_temp": .5
     },

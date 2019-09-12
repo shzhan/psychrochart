@@ -4,6 +4,7 @@ import json
 import os
 from time import time
 from typing import Callable, Union, Dict, Optional, List, Tuple
+from scipy.optimize import fsolve
 
 
 NUM_ITERS_MAX = 100
@@ -120,6 +121,7 @@ def iter_solver(initial_value: float,
     num_iter = 0
     value_calc = initial_value
     while abs(error) > precision and num_iter < num_iters_max:
+        # print(value_calc)
         iteration_value = func_eval(value_calc)
         error = objective_value - iteration_value
         if error < 0:
@@ -143,6 +145,7 @@ def iter_solver(initial_value: float,
                 .format(num_iter, value_calc, increment,
                         objective_value, iteration_value))
     return value_calc, num_iter
+
 
 
 def solve_curves_with_iteration(
@@ -171,6 +174,8 @@ def solve_curves_with_iteration(
                 initial_increment=initial_increment,
                 num_iters_max=NUM_ITERS_MAX,
                 precision=precision)
+
+
         except AssertionError as exc:  # pragma: no cover
             logger("{} CONVERGENCE ERROR: {}".format(family_name, exc))
             if TESTING_MODE:

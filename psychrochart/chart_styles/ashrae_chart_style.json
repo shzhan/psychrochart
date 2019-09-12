@@ -49,7 +49,7 @@
 		"constant_temp_step": 1,
 		
 		"with_constant_humidity": true,
-		"constant_humid_step": 0.5,
+		"constant_humid_step": 0.0005,
 
 		"with_zones": false
 	}

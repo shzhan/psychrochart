@@ -30,6 +30,7 @@ def water_vapor_pressure(
     kPa, eq (38)
     2009 ASHRAE Handbook—Fundamentals (SI).
     """
+
     humid_ratio_vap_pres = .621945
     p_vapor_kpa = p_atm_kpa * w_kg_kga / (humid_ratio_vap_pres + w_kg_kga)
     return p_vapor_kpa

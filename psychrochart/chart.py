@@ -22,28 +22,28 @@ try:
 except ImportError:  # pragma: no cover
     ConvexHull = None
 
-from psychrochart.equations import (
-    PRESSURE_STD_ATM_KPA, pressure_by_altitude, humidity_ratio,
-    specific_volume, dew_point_temperature, water_vapor_pressure,
-    enthalpy_moist_air, saturation_pressure_water_vapor,
-    dry_temperature_for_enthalpy_of_moist_air, relative_humidity_from_temps,
-    dry_temperature_for_specific_volume_of_moist_air)
+# from psychrochart.equations import (
+#     PRESSURE_STD_ATM_KPA, pressure_by_altitude, humidity_ratio,
+#     specific_volume, dew_point_temperature, water_vapor_pressure,
+#     enthalpy_moist_air, saturation_pressure_water_vapor,
+#     dry_temperature_for_enthalpy_of_moist_air, relative_humidity_from_temps,
+#     dry_temperature_for_specific_volume_of_moist_air)
 from psychrochart.util import (
     load_config, load_zones, mod_color, f_range, solve_curves_with_iteration)
 
 
 
 from psychrolib import (SI, IP, SetUnitSystem,
-         GetHumRatioFromRelHum as humidity_ratio1,
-        GetHumRatioFromTWetBulb as  humidity_ratio_from_twb,
-        GetMoistAirVolume   as  specific_volume1,
-            GetSatHumRatio as saturation_pressure_water_vapor1,
-        GetVapPresFromHumRatio as water_vapor_pressure1,
-        GetTDewPointFromVapPres as dew_point_temperature1 )
+                        GetStandardAtmPressure as pressure_by_altitude1,
+                        GetHumRatioFromRelHum as humidity_ratio1,
+                        GetHumRatioFromTWetBulb as humidity_ratio_from_twb,
+                        GetMoistAirVolume as specific_volume1,
+                        GetSatHumRatio as saturation_pressure_water_vapor1,
+                        GetVapPresFromHumRatio as water_vapor_pressure1,
+                        GetTDewPointFromVapPres as dew_point_temperature1 )
 import psychrolib
 
 from scipy.optimize import fsolve
-
 
 TEMP_BOUND = {True: 392, False : 200}
 
@@ -321,12 +321,12 @@ def curve_constant_humidity_ratio(
         p_atm: float = None, mode_sat=1) -> List[float]:
     """Generate a curve (numpy array) of constant humidity ratio."""
     if isinstance(rh_percentage, Iterable):
-        return [humidity_ratio1(t, rh / 100, p_atm * 1000)
+        return [humidity_ratio1(t, rh / 100, p_atm )
                 for t, rh in zip(dry_temps, rh_percentage)]
 
 
 
-    return [humidity_ratio1(t, rh_percentage / 100, p_atm * 1000)
+    return [humidity_ratio1(t, rh_percentage / 100, p_atm )
             for t in dry_temps]
 
 
@@ -450,7 +450,7 @@ class PsychroChart:
             self.p_atm = config['limits']['pressure_kpa']
         elif config['limits'].get('altitude_m') is not None:
             self.altitude_m = config['limits']['altitude_m']
-            self.p_atm = pressure_by_altitude(self.altitude_m)
+            self.p_atm = pressure_by_altitude1(self.altitude_m)
 
         # Dry bulb constant lines (vertical):
         if self.chart_params["with_constant_dry_temp"]:
@@ -480,8 +480,8 @@ class PsychroChart:
                 'DEW POINT', [x for x in ws_hl],
                 lambda x: dew_point_temperature1(TEMP_BOUND[self.imperial],  #  This 200
                         water_vapor_pressure1(
-                            x, self.p_atm * 1000)),
-                lambda x: humidity_ratio1(x, 1, self.p_atm * 1000))
+                            x, self.p_atm)),
+                lambda x: humidity_ratio1(x, 1, self.p_atm))
 
 
             self.constant_humidity_data = PsychroCurves(
@@ -529,7 +529,7 @@ class PsychroChart:
             sat_points = solve_curves_with_iteration(
                 'ENTHALPHY', enthalpy_values,
                 lambda x: psychrolib.GetTDryBulbFromEnthalpyAndHumRatio(x*1000, self.w_min),
-                lambda x: psychrolib.GetSatAirEnthalpy(x, self.p_atm*1000)/1000)
+               lambda x: psychrolib.GetSatAirEnthalpy(x, self.p_atm)/1000)
             # print(sat_points)
 
             # from scipy.optimize import fsolve
@@ -543,7 +543,7 @@ class PsychroChart:
             self.constant_h_data = PsychroCurves(
                 [PsychroCurve(
                     [t_sat, t_max], [
-                        humidity_ratio1(t_sat, 1, self.p_atm * 1000)
+                        humidity_ratio1(t_sat, 1, self.p_atm)
                         , self.w_min], style,
                     type_curve='constant_h_data',
                     label_loc=label_loc, label='{:g} kJ/kg_da'.format(h)
@@ -563,20 +563,20 @@ class PsychroChart:
             style = config["constant_v"]
             temps_max_constant_v = [
                 dry_temperature_for_specific_volume_of_moist_air1(
-                    0, specific_vol, self.p_atm * 1000)
+                    0, specific_vol, self.p_atm)
                 for specific_vol in vol_values]
             sat_points = solve_curves_with_iteration(
                 'CONSTANT VOLUME', vol_values,
                 lambda x: dry_temperature_for_specific_volume_of_moist_air1(
-                    0, x, self.p_atm * 1000),
+                    0, x, self.p_atm),
                 lambda x: specific_volume1(
-                    x, saturation_pressure_water_vapor1(x,self.p_atm * 1000 ),
-                     self.p_atm * 1000))
+                    x, saturation_pressure_water_vapor1(x,self.p_atm),
+                     self.p_atm))
 
             self.constant_v_data = PsychroCurves(
                 [PsychroCurve(
                     [t_sat, t_max], [
-                        humidity_ratio1(t_sat, 1, self.p_atm * 1000)
+                        humidity_ratio1(t_sat, 1, self.p_atm)
                         , 0],
                     style, type_curve='constant_v_data',
                     label_loc=label_loc, label='{:g} m3/kg_da'.format(vol)
@@ -597,7 +597,7 @@ class PsychroChart:
                 "constant_wet_temp_labels_loc", .05)
             style = config["constant_wet_temp"]
             w_max_constant_wbt = [
-                humidity_ratio1(wbt, 1, self.p_atm * 1000)
+                humidity_ratio1(wbt, 1, self.p_atm)
                 for wbt in wbt_values]
             psychrolib.MIN_HUM_RATIO = -999   ### Not-so-smart solutoin. Just temporaory remove the limit
 
@@ -605,7 +605,7 @@ class PsychroChart:
                 [PsychroCurve(
                     [wbt, self.dbt_max],
                     [w_max,
-                     humidity_ratio_from_twb(self.dbt_max, wbt,self.p_atm * 1000),
+                     humidity_ratio_from_twb(self.dbt_max, wbt,self.p_atm),
 
 
                      # humidity_ratio(
@@ -843,7 +843,7 @@ class PsychroChart:
             reverse: bool=False,
             **label_params) -> None:
         """Append a vertical line from w_min to w_sat."""
-        w_max = humidity_ratio1(temp, 1, self.p_atm * 1000)
+        w_max = humidity_ratio1(temp, 1, self.p_atm)
 
         style_curve = style or self.d_config.get("constant_dry_temp")
         path_y = [w_max, self.w_min] if reverse else [self.w_min, w_max]

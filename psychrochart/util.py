@@ -108,6 +108,15 @@ def load_zones(zones: Optional[Union[Dict, str]]=DEFAULT_ZONES_FILE,
     return _load_config(zones, verbose=verbose)
 
 
+# def iter_solver1(initial_value: float,
+#                 objective_value: float,
+#                 func_eval: Callable,
+#                 initial_increment: float=4.,
+#                 num_iters_max: int=NUM_ITERS_MAX,
+#                 precision: float=0.01) -> Tuple[float, int]:
+#     fun = lambda x: func_eval((x>0) * x) - objective_value
+#     return fsolve(fun, 10)[0], 0
+
 def iter_solver(initial_value: float,
                 objective_value: float,
                 func_eval: Callable,

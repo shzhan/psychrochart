@@ -45,6 +45,7 @@ def humidity_ratio(
     """
     humid_ratio_vap_pres = .621945
     w_kg_kga = humid_ratio_vap_pres * p_vapor_kpa / (p_atm_kpa - p_vapor_kpa)
+    print(w_kg_kga)
     return w_kg_kga
 
 

@@ -1,8 +1,8 @@
 {
 	"figure": {
 		"figsize": [16, 9],
-		"title": "Psychrometric Chart (sea level)",
-		"x_label": "DRY-BULB TEMPERATURE, $^\\circ F$",
+		"title": "Psychrometric Chart (sea level  ASHRAE IP)",
+		"x_label": "DRY-BULB TEMPERATURE, $\\degree C$",
 		"y_label": "HUMIDITY RATIO $w, g_w / kg_{da}$",
 		"x_axis": {"color": [0.0, 0.0, 0.0], "linewidth": 1.5, "linestyle": "-"},
 		"x_axis_labels": {"color": [0.0, 0.0, 0.0], "fontsize": 8},
@@ -14,8 +14,8 @@
 		"position": [0.025, 0.075, 0.925, 0.875]
 	},
 	"limits": {
-		"range_temp": [0, 50],
-		"range_humidity": [0, 30],
+		"range_temp": [35, 120],
+		"range_humidity": [0, 0.03],
 		"altitude_m": 0,
 		"step_temp": 1.0
 	},
@@ -33,23 +33,24 @@
 		"constant_rh_curves": [10, 20, 30, 40, 50, 60, 70, 80, 90],
 		
 		"with_constant_v": true,
-		"constant_v_step": 0.01,
-		"range_vol": [0.78, 0.96],
+		"constant_v_step": 0.5,
+		"range_vol": [12.5, 15],
 
 		"with_constant_h": true,
-		"constant_h_step": 10,
-		"range_h": [10, 130],
+		"constant_h_step": 5,
+		"range_h": [15, 50],
+		"constant_h_labels": [15,20, 25, 30, 35, 40,45, 50],
 
 		"with_constant_wet_temp": true,
-		"constant_wet_temp_step": 1,
-		"range_wet_temp": [-10, 35],
-		"constant_wet_temp_labels": [0, 5, 10, 15, 20, 25, 30],
+		"constant_wet_temp_step": 10,
+		"range_wet_temp": [30, 90],
+		"constant_wet_temp_labels": [30, 40, 50, 60, 70, 80, 90],
 
 		"with_constant_dry_temp": true,
 		"constant_temp_step": 1,
 		
 		"with_constant_humidity": true,
-		"constant_humid_step": 0.5,
+		"constant_humid_step": 0.001,
 
 		"with_zones": false
 	}

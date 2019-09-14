@@ -37,8 +37,8 @@
 		"range_vol": [0.78, 0.96],
 
 		"with_constant_h": true,
-		"constant_h_step": 10,
-		"range_h": [10, 130],
+		"constant_h_step": 10000,
+		"range_h": [10000, 130000],
 
 		"with_constant_wet_temp": true,
 		"constant_wet_temp_step": 1,

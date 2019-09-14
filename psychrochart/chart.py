@@ -451,7 +451,6 @@ class PsychroChart:
         elif config['limits'].get('altitude_m') is not None:
             self.altitude_m = config['limits']['altitude_m']
             self.p_atm = pressure_by_altitude1(self.altitude_m)
-
         # Dry bulb constant lines (vertical):
         if self.chart_params["with_constant_dry_temp"]:
             step = self.chart_params["constant_temp_step"]
@@ -522,15 +521,15 @@ class PsychroChart:
             style = config["constant_h"]
             temps_max_constant_h = [
                 psychrolib.GetTDryBulbFromEnthalpyAndHumRatio(
-                     h*1000, self.w_min)
+                     h, self.w_min)
                 for h in enthalpy_values]
             print(temps_max_constant_h)
-
+            print(enthalpy_values)
             sat_points = solve_curves_with_iteration(
                 'ENTHALPHY', enthalpy_values,
-                lambda x: psychrolib.GetTDryBulbFromEnthalpyAndHumRatio(x*1000, self.w_min),
-               lambda x: psychrolib.GetSatAirEnthalpy(x, self.p_atm)/1000)
-            # print(sat_points)
+                lambda x: psychrolib.GetTDryBulbFromEnthalpyAndHumRatio(x, self.w_min),
+               lambda x: psychrolib.GetSatAirEnthalpy(x, self.p_atm))
+            print(sat_points)
 
             # from scipy.optimize import fsolve
             # print(self.p_atm)
@@ -565,6 +564,7 @@ class PsychroChart:
                 dry_temperature_for_specific_volume_of_moist_air1(
                     0, specific_vol, self.p_atm)
                 for specific_vol in vol_values]
+
             sat_points = solve_curves_with_iteration(
                 'CONSTANT VOLUME', vol_values,
                 lambda x: dry_temperature_for_specific_volume_of_moist_air1(
@@ -572,7 +572,6 @@ class PsychroChart:
                 lambda x: specific_volume1(
                     x, saturation_pressure_water_vapor1(x,self.p_atm),
                      self.p_atm))
-
             self.constant_v_data = PsychroCurves(
                 [PsychroCurve(
                     [t_sat, t_max], [

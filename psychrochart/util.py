@@ -11,10 +11,15 @@ NUM_ITERS_MAX = 100
 PATH_STYLES = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'chart_styles')
 
-DEFAULT_CHART_CONFIG_FILE = os.path.join(
-    PATH_STYLES, 'default_chart_config.json')
-ASHRAE_CHART_CONFIG_FILE = os.path.join(
-    PATH_STYLES, 'ashrae_chart_style.json')
+DEFAULT_CHART_CONFIG_FILE = {False:os.path.join(
+    PATH_STYLES, 'default_chart_config.json'),
+        True:os.path.join(
+    PATH_STYLES, 'default_chart_config_IP.json')}
+
+ASHRAE_CHART_CONFIG_FILE = {False: os.path.join(
+    PATH_STYLES, 'ashrae_chart_style.json'),
+    True: os.path.join(
+    PATH_STYLES, 'ashrae_chart_style_IP.json')}
 INTERIOR_CHART_CONFIG_FILE = os.path.join(
     PATH_STYLES, 'interior_chart_style.json')
 MINIMAL_CHART_CONFIG_FILE = os.path.join(
@@ -70,6 +75,7 @@ def _update_config(old_conf: dict, new_conf: dict,
 
 def _load_config(new_config: Union[Dict, str]=None,
                  default_config_file: str=None,
+                 imperial: bool=False,
                  verbose: bool=False) -> Dict:
     """Load plot parameters from a JSON file."""
     if default_config_file is not None:
@@ -84,7 +90,7 @@ def _load_config(new_config: Union[Dict, str]=None,
                 with open(new_config) as f:
                     new_config_d.update(json.load(f))
             elif new_config in STYLES:
-                with open(STYLES[new_config]) as f:
+                with open(STYLES[new_config][imperial]) as f:
                     new_config_d.update(json.load(f))
             config = _update_config(config, new_config_d, verbose=verbose)
         else:
@@ -95,10 +101,11 @@ def _load_config(new_config: Union[Dict, str]=None,
 
 
 def load_config(styles: Optional[Union[Dict, str]]=None,
+                imperial: bool = False,
                 verbose: bool=False) -> Dict:
     """Load the plot params for the psychrometric chart."""
     return _load_config(
-        styles, default_config_file=DEFAULT_CHART_CONFIG_FILE,
+        styles, default_config_file=DEFAULT_CHART_CONFIG_FILE[imperial], imperial = imperial,
         verbose=verbose)
 
 
@@ -108,14 +115,14 @@ def load_zones(zones: Optional[Union[Dict, str]]=DEFAULT_ZONES_FILE,
     return _load_config(zones, verbose=verbose)
 
 
-# def iter_solver1(initial_value: float,
-#                 objective_value: float,
-#                 func_eval: Callable,
-#                 initial_increment: float=4.,
-#                 num_iters_max: int=NUM_ITERS_MAX,
-#                 precision: float=0.01) -> Tuple[float, int]:
-#     fun = lambda x: func_eval((x>0) * x) - objective_value
-#     return fsolve(fun, 10)[0], 0
+def iter_solver_fsolve(initial_value: float,
+                objective_value: float,
+                func_eval: Callable,
+                initial_increment: float=4.,
+                num_iters_max: int=NUM_ITERS_MAX,
+                precision: float=0.01) -> Tuple[float, int]:
+    fun = lambda x: func_eval((x>0) * x) - objective_value
+    return fsolve(fun, 10)[0], 0
 
 def iter_solver(initial_value: float,
                 objective_value: float,
@@ -186,11 +193,21 @@ def solve_curves_with_iteration(
 
 
         except AssertionError as exc:  # pragma: no cover
-            logger("{} CONVERGENCE ERROR: {}".format(family_name, exc))
-            if TESTING_MODE:
-                raise exc
-            else:
-                return calc_points
+            logger("{} CONVERGENCE ERROR: {}, try fsolve now".format(family_name, exc))
+
+            calc_p, num_iter = iter_solver_fsolve(
+                func_init(objective), objective,
+                func_eval=func_eval,
+                initial_increment=initial_increment,
+                num_iters_max=NUM_ITERS_MAX,
+                precision=precision)
+        except:
+            logger("unable to solve")
+            # logger("{} CONVERGENCE ERROR: {}".format(family_name, exc))
+            # if TESTING_MODE:
+            #     raise exc
+            # else:
+            #     return calc_points
 
         if (TESTING_MODE
                 and (abs(objective - func_eval(calc_p))

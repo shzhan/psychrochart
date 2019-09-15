@@ -20,10 +20,15 @@ ASHRAE_CHART_CONFIG_FILE = {False: os.path.join(
     PATH_STYLES, 'ashrae_chart_style.json'),
     True: os.path.join(
     PATH_STYLES, 'ashrae_chart_style_IP.json')}
-INTERIOR_CHART_CONFIG_FILE = os.path.join(
-    PATH_STYLES, 'interior_chart_style.json')
-MINIMAL_CHART_CONFIG_FILE = os.path.join(
-    PATH_STYLES, 'minimal_chart_style.json')
+INTERIOR_CHART_CONFIG_FILE = {False: os.path.join(
+    PATH_STYLES, 'interior_chart_style.json'),
+    True: os.path.join(
+    PATH_STYLES, 'interior_chart_style_IP.json')
+}
+MINIMAL_CHART_CONFIG_FILE = {False: os.path.join(
+    PATH_STYLES, 'minimal_chart_style.json'),
+    True: os.path.join(
+        PATH_STYLES, 'minimal_chart_style_IP.json')}
 
 DEFAULT_ZONES_FILE = os.path.join(
     PATH_STYLES, 'default_comfort_zones.json')

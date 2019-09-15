@@ -12,7 +12,7 @@ PATH_STYLES = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'chart_styles')
 
 DEFAULT_CHART_CONFIG_FILE = {False:os.path.join(
-    PATH_STYLES, 'default_chart_config.json'),
+    PATH_STYLES, 'default_chart_config.json.bak'),
         True:os.path.join(
     PATH_STYLES, 'default_chart_config_IP.json')}
 

@@ -37,7 +37,7 @@ class TestsPsychroPlot(TestCase):
             },
             "limits": {
                 "range_temp": [15, 25],
-                "range_humidity": [0, 20],
+                "range_humidity": [0, 0.02],
                 "altitude_m": 900,
                 "step_temp": .2
             },
@@ -99,7 +99,7 @@ class TestsPsychroPlot(TestCase):
                 'constant_wet_temp_labels': [10, 15, 20, 25],
                 'constant_wet_temp_step': 5,
                 'range_wet_temp': [10, 30],
-                'range_h': [10, 100],
+                'range_h': [10000, 100000],
                 'range_vol': [0.82, 0.9],
                 'with_constant_dry_temp': True,
                 'with_constant_h': True,

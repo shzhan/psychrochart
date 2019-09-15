@@ -23,8 +23,9 @@ class TestsPsychroUtils(TestCase):
         default_config = load_config()
 
         # Test passing dict vs JSON path:
-        config_2 = load_config(styles=DEFAULT_CHART_CONFIG_FILE)
-        with open(DEFAULT_CHART_CONFIG_FILE) as f:
+        IMPERIAL = False
+        config_2 = load_config(styles=DEFAULT_CHART_CONFIG_FILE[IMPERIAL])
+        with open(DEFAULT_CHART_CONFIG_FILE[IMPERIAL]) as f:
             config_3 = load_config(styles=json.load(f))
         self.assertEqual(config_2, config_3)
 

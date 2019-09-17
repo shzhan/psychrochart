@@ -446,8 +446,8 @@ class PsychroChart:
         self.chart_params = config['chart_params']
 
         # Base pressure
-        if config['limits'].get('pressure_kpa') is not None:
-            self.p_atm = config['limits']['pressure_kpa']
+        if config['limits'].get('pressure') is not None:
+            self.p_atm = config['limits']['pressure']
         elif config['limits'].get('altitude_m') is not None:
             self.altitude_m = config['limits']['altitude_m']
             self.p_atm = pressure_by_altitude1(self.altitude_m)

@@ -113,7 +113,7 @@ class TestsPsychroOverlay(TestCase):
         config = load_config("minimal")
 
         # Customization
-        config['limits']['pressure_kpa'] = 90.5
+        config['limits']['pressure'] = 90500
         config['figure']['x_label'] = None
         config['figure']['y_label'] = None
         config['saturation']['linewidth'] = 3
@@ -124,7 +124,7 @@ class TestsPsychroOverlay(TestCase):
 
         # Chart creation
         chart = PsychroChart(config)
-        self.assertEqual(90.5, chart.p_atm_kpa)
+        self.assertEqual(90500, chart.p_atm)
 
         # Zones:
         zones_conf = {
@@ -236,11 +236,11 @@ class TestsPsychroOverlay(TestCase):
         config = load_config("minimal")
 
         # Customization
-        config['limits']['pressure_kpa'] = 90.5
+        config['limits']['pressure'] = 90500
 
         # Chart creation
         chart = PsychroChart(config)
-        self.assertEqual(90.5, chart.p_atm_kpa)
+        self.assertEqual(90500, chart.p_atm)
 
         # Plotting
         chart.plot()
@@ -283,11 +283,11 @@ class TestsPsychroOverlay(TestCase):
         config = load_config("minimal")
 
         # Customization
-        config['limits']['pressure_kpa'] = 90.5
+        config['limits']['pressure'] = 90500
 
         # Chart creation
         chart = PsychroChart(config)
-        self.assertEqual(90.5, chart.p_atm_kpa)
+        self.assertEqual(90500, chart.p_atm)
 
         # Plotting
         chart.plot()
@@ -317,11 +317,11 @@ class TestsPsychroOverlay(TestCase):
         config = load_config("minimal")
 
         # Customization
-        config['limits']['pressure_kpa'] = 90.5
+        config['limits']['pressure'] = 90500
 
         # Chart creation
         chart = PsychroChart(config)
-        self.assertEqual(90.5, chart.p_atm_kpa)
+        self.assertEqual(90500, chart.p_atm)
 
         # Plotting
         chart.plot()

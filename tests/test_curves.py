@@ -85,7 +85,7 @@ class TestsPsychroCurves(TestCase):
 
     def test_data_psychrochart(self):
         """Check the string representation of objects."""
-        obj_repr = "<PsychroChart [0->50 °C, 0->40 gr/kg_da]>"
+        obj_repr = "<PsychroChart [0->50 °C, 0->0.04 gr/kg_da]>"
         data_chart = PsychroChart()
         print(data_chart)
         self.assertEqual(str(data_chart), obj_repr)

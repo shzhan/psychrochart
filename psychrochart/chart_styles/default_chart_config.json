@@ -2,8 +2,8 @@
 	"figure": {
 		"figsize": [16, 9],
 		"base_fontsize": 10,
-		"title": "Psychrometric Chart (sea level DEFAULT)",
-		"x_label": "Dry-bulb temperature, $\\degree C$",
+		"title": "Psychrometric Chart",
+		"x_label": "Dry-bulb temperature, $°C$",
 		"y_label": "Humidity ratio $w, g_w / kg_{da}$",
 		"x_axis": {"color": [0.2, 0.2, 0.2], "linewidth": 2, "linestyle": "-"},
 		"x_axis_labels": {"color": [0.2, 0.2, 0.2], "fontsize": 9},
@@ -18,7 +18,7 @@
 		"range_temp": [0, 50],
 		"range_humidity": [0, 0.04],
 		"altitude_m": 0,
-		"pressure_kpa": null,
+		"pressure": null,
 		"step_temp": 1.0
 	},
 
@@ -46,8 +46,8 @@
 
 		"with_constant_h": true,
 		"constant_h_label": "Constant enthalpy",
-		"constant_h_step": 5,
-		"range_h": [5, 155],
+		"constant_h_step": 5000,
+		"range_h": [5000, 155000],
 		"constant_h_labels": [5, 25, 50, 75, 100, 125],
 		"constant_h_labels_loc": 1.0,
 
@@ -66,8 +66,8 @@
 
 		"with_constant_humidity": true,
 		"constant_humid_label": "Absolute humidity",
-		"constant_humid_step": 1,
-		"constant_humid_label_step": 2,
+		"constant_humid_step": 0.001,
+		"constant_humid_label_step": 0.002,
 		"constant_humid_label_include_limits": true,
 
 		"with_zones": true
